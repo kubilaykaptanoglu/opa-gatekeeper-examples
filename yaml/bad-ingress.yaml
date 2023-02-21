@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: bad-ingress
+  namespace: kubilay
+spec:
+  rules:
+  - host: "foo.bar.com"
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/bar"
+        backend:
+          service:
+            name: service1
+            port:
+              number: 80
+  - host: "foo.bar2.com"
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/bar2"
+        backend:
+          service:
+            name: service1
+            port:
+              number: 80

@@ -1,0 +1,42 @@
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8singresswhitelist
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sIngressWhitelist
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+
+        package k8singresswhitelist
+        allowedhosts := "*.kubilay.com,*.test.com"
+        violation[{"msg": msg}] {
+          host := input.review.object.spec.rules[_].host
+          not fqdn_matches_any(host, valid_ingress_hosts)
+          msg := sprintf("invalid ingress host %v ---> %v", [host,allowedhosts])
+        }
+
+        valid_ingress_hosts := {host |
+          hosts := split(allowedhosts, ",")
+          host := hosts[_]
+        }
+
+        fqdn_matches_any(str, patterns) {
+          fqdn_matches(str, patterns[_])
+        }
+
+        fqdn_matches(str, pattern) {
+          pattern_parts := split(pattern, ".")
+          pattern_parts[0] == "*"
+          suffix := trim(pattern, "*.")
+          endswith(str, suffix)
+        }
+
+        fqdn_matches(str, pattern) {
+            not contains(pattern, "*")
+            str == pattern
+        }
+

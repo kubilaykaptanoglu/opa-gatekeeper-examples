@@ -1,0 +1,11 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sIngressWhitelist
+metadata:
+  name: k8s-ingress-whitelist
+spec:
+  match:
+    kinds:
+      - apiGroups: ["*"]
+        kinds: ["Ingress"]
+  parameters:
+    allowedhosts: "*.kubilay.com,test.test.com"
